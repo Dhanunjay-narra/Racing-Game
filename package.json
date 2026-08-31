@@ -1,0 +1,42 @@
+{
+  "name": "velocity-nexus",
+  "version": "2.4.0",
+  "description": "Production 3D Racing Game & Competitive Esports Platform",
+  "main": "client/core/app.js",
+  "scripts": {
+    "start": "python main.py",
+    "dev": "python main.py --dev",
+    "build": "node tools/build.js",
+    "test": "pytest tests/ -v",
+    "lint": "flake8 backend game_servers && eslint client/core",
+    "server": "uvicorn backend.gateway.main:app --host 0.0.0.0 --port 8000 --reload",
+    "game-server": "python game_servers/race_server/server.py",
+    "admin": "python -m http.server 3000 --directory admin"
+  },
+  "keywords": [
+    "racing-game",
+    "webgl",
+    "threejs",
+    "fastapi",
+    "multiplayer",
+    "driver-dna",
+    "physics-engine",
+    "authoritative-server"
+  ],
+  "author": "Velocity Nexus Engineering Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "three": "^0.160.0",
+    "cannon-es": "^0.20.0",
+    "socket.io-client": "^4.7.2",
+    "chart.js": "^4.4.1",
+    "lucide": "^0.300.0",
+    "howler": "^2.2.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "vite": "^5.0.10"
+  }
+}

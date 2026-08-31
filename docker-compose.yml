@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: velocity-nexus-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "8765:8765"
+      - "3000:3000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://nexus_user:nexus_password@postgres:5432/velocity_nexus
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=nexus_super_secret_production_key_2026
+      - TICK_RATE=60
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - nexus-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: velocity-nexus-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexus_user
+      POSTGRES_PASSWORD: nexus_password
+      POSTGRES_DB: velocity_nexus
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - nexus-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: velocity-nexus-redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    networks:
+      - nexus-network
+
+networks:
+  nexus-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
