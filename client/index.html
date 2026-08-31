@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity Nexus — Production 3D Racing Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js 3D Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-[#070913] text-slate-100 font-sans select-none overflow-hidden h-screen w-screen">
+
+    <!-- TOP NAV / STATUS BAR -->
+    <header class="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-3 bg-[#0b0e1e]/85 backdrop-blur border-b border-cyan-500/20 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-fuchsia-500 flex items-center justify-center text-white font-black text-xl shadow-cyan-500/50 shadow-md">
+                VN
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-200 to-fuchsia-400">VELOCITY NEXUS</h1>
+                <span class="text-[10px] tracking-widest uppercase font-mono text-cyan-400/80">Authoritative Esports Sim v2.4</span>
+            </div>
+        </div>
+
+        <!-- PLAYER STATUS PILLS -->
+        <div id="playerStatsBar" class="flex items-center gap-4">
+            <div class="flex items-center gap-2 bg-slate-900/80 border border-cyan-500/30 px-3 py-1.5 rounded-full text-xs font-mono">
+                <i data-lucide="award" class="w-4 h-4 text-cyan-400"></i>
+                <span id="userDisplayName" class="font-bold text-white">Guest Driver</span>
+                <span id="userLevelBadge" class="bg-cyan-500 text-black px-1.5 py-0.5 rounded font-black text-[10px]">LVL 1</span>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-900/80 border border-amber-500/30 px-3 py-1.5 rounded-full text-xs font-mono">
+                <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i>
+                <span id="walletCredits" class="font-bold text-amber-300">50,000</span> CR
+            </div>
+            <div class="flex items-center gap-2 bg-slate-900/80 border border-fuchsia-500/30 px-3 py-1.5 rounded-full text-xs font-mono">
+                <i data-lucide="gem" class="w-4 h-4 text-fuchsia-400"></i>
+                <span id="walletGold" class="font-bold text-fuchsia-300">500</span> GOLD
+            </div>
+            <div class="flex items-center gap-1">
+                <select id="langSelector" onchange="window.app.changeLanguage(this.value)" class="bg-slate-900 border border-slate-700 text-xs px-2 py-1.5 rounded-lg text-slate-300">
+                    <option value="en">English</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3D WEBGL CANVAS -->
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+    <!-- MAIN MENU OVERLAY -->
+    <div id="mainMenuScreen" class="absolute inset-0 z-20 flex flex-col justify-between p-8 pt-20 pointer-events-none bg-gradient-to-r from-[#070913]/90 via-[#070913]/40 to-transparent">
+        <div class="pointer-events-auto max-w-md space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                60Hz Authoritative Simulation Ready
+            </div>
+            <h2 class="text-4xl font-black italic tracking-wide text-white uppercase drop-shadow-md">
+                Dominance Through <span class="text-cyan-400">Precision</span>
+            </h2>
+            <p class="text-xs text-slate-300 leading-relaxed font-medium">
+                Pacejka tire kinematics, real-time Driver DNA profiling, adaptive AI rivals, and authoritative competitive multiplayer.
+            </p>
+
+            <!-- 1-CLICK INSTANT LOGIN / LAUNCH -->
+            <div id="authSection" class="p-4 bg-slate-900/90 border border-cyan-500/40 rounded-2xl backdrop-blur shadow-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">1-Click Driver Access</span>
+                    <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono">Pre-Configured</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <input id="loginUsername" type="text" value="ApexLegend" class="bg-black/60 border border-slate-700 px-3 py-2 rounded-lg text-white font-mono" placeholder="Username">
+                    <input id="loginPassword" type="password" value="SpeedDem0n2026!" class="bg-black/60 border border-slate-700 px-3 py-2 rounded-lg text-white font-mono" placeholder="Password">
+                </div>
+                <button onclick="window.app.quickLogin()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-black text-sm tracking-wider uppercase rounded-xl transition duration-200 shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4 fill-black"></i> 1-Click Instant Enter
+                </button>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="window.app.startRace()" class="col-span-2 py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-black font-black text-base tracking-widest uppercase rounded-2xl shadow-xl shadow-emerald-500/30 transition duration-200 flex items-center justify-center gap-3">
+                    <i data-lucide="play" class="w-5 h-5 fill-black"></i> <span id="btnStartRace">Start 3D Race</span>
+                </button>
+                <button onclick="window.app.openGarage()" class="py-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 rounded-xl text-xs font-bold tracking-wider uppercase transition flex items-center justify-center gap-2">
+                    <i data-lucide="car" class="w-4 h-4 text-cyan-400"></i> Garage & Customization
+                </button>
+                <button onclick="window.app.openCareer()" class="py-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-fuchsia-500/50 rounded-xl text-xs font-bold tracking-wider uppercase transition flex items-center justify-center gap-2">
+                    <i data-lucide="trophy" class="w-4 h-4 text-fuchsia-400"></i> Career Mode
+                </button>
+                <button onclick="window.app.openDriverDNA()" class="py-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-xl text-xs font-bold tracking-wider uppercase transition flex items-center justify-center gap-2">
+                    <i data-lucide="fingerprint" class="w-4 h-4 text-amber-400"></i> Driver DNA
+                </button>
+                <button onclick="window.app.openAdmin()" class="py-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-indigo-500/50 rounded-xl text-xs font-bold tracking-wider uppercase transition flex items-center justify-center gap-2">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-indigo-400"></i> Admin Panel
+                </button>
+            </div>
+        </div>
+
+        <!-- CONTROLS HINT -->
+        <div class="pointer-events-auto flex items-center gap-6 text-xs text-slate-400 font-mono bg-black/60 backdrop-blur px-4 py-2 rounded-xl border border-slate-800 w-fit">
+            <span><b class="text-cyan-400">[W / UP]</b> Throttle</span>
+            <span><b class="text-cyan-400">[S / DOWN]</b> Brake / Reverse</span>
+            <span><b class="text-cyan-400">[A / D]</b> Steer</span>
+            <span><b class="text-amber-400">[SPACE]</b> Handbrake</span>
+            <span><b class="text-fuchsia-400">[SHIFT]</b> Nitro</span>
+            <span><b class="text-white">[C]</b> Camera Mode</span>
+        </div>
+    </div>
+
+    <!-- RACE HUD SCREEN -->
+    <div id="raceHudScreen" class="hidden absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-6">
+        <!-- TOP HUD -->
+        <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-black/80 backdrop-blur border border-cyan-500/40 px-4 py-2 rounded-xl">
+                    <span class="text-[10px] text-slate-400 uppercase font-mono block">Position</span>
+                    <span id="hudPosition" class="text-3xl font-black italic text-cyan-400 font-mono">1<span class="text-sm font-normal text-slate-400">/6</span></span>
+                </div>
+                <div class="bg-black/80 backdrop-blur border border-cyan-500/40 px-4 py-2 rounded-xl">
+                    <span class="text-[10px] text-slate-400 uppercase font-mono block">Lap</span>
+                    <span id="hudLap" class="text-3xl font-black italic text-white font-mono">1<span class="text-sm font-normal text-slate-400">/3</span></span>
+                </div>
+            </div>
+
+            <!-- TIME & SPLITS -->
+            <div class="bg-black/80 backdrop-blur border border-cyan-500/40 px-6 py-2 rounded-xl text-right font-mono">
+                <span class="text-[10px] text-slate-400 uppercase block">Lap Time</span>
+                <span id="hudLapTime" class="text-2xl font-black text-cyan-300">00:00.000</span>
+                <div class="text-[10px] text-slate-400 mt-0.5">Best: <span id="hudBestLap" class="text-emerald-400">--:--.---</span></div>
+            </div>
+        </div>
+
+        <!-- BOTTOM HUD: SPEEDOMETER & TACHOMETER -->
+        <div class="flex items-end justify-between">
+            <!-- MINI RADAR MAP -->
+            <div class="w-36 h-36 bg-black/80 border border-slate-700 rounded-full p-2 relative overflow-hidden backdrop-blur flex items-center justify-center">
+                <div class="w-28 h-28 border border-cyan-500/30 rounded-full border-dashed animate-spin" style="animation-duration: 20s;"></div>
+                <div id="radarPlayerDot" class="w-3 h-3 bg-cyan-400 rounded-full absolute shadow-cyan-400 shadow-md"></div>
+                <div class="w-2 h-2 bg-rose-500 rounded-full absolute -top-4 -left-2"></div>
+                <div class="w-2 h-2 bg-amber-500 rounded-full absolute top-8 right-6"></div>
+                <span class="absolute bottom-2 text-[9px] font-mono text-cyan-400/80">GPS TRACKER</span>
+            </div>
+
+            <!-- SPEEDO / TACHOMETER CLUSTER -->
+            <div class="bg-black/85 backdrop-blur border-2 border-cyan-500/50 rounded-2xl p-4 flex items-center gap-6 shadow-2xl shadow-cyan-500/20">
+                <div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="hudSpeed" class="text-6xl font-black italic tracking-tighter text-white font-mono">0</span>
+                        <span class="text-xs font-mono font-bold text-cyan-400">KM/H</span>
+                    </div>
+                    <!-- Nitro Fuel Bar -->
+                    <div class="mt-2 w-36 h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                        <div id="hudNitroBar" class="h-full bg-gradient-to-r from-blue-500 to-fuchsia-500 w-full transition-all duration-75"></div>
+                    </div>
+                    <span class="text-[9px] font-mono text-fuchsia-400 mt-0.5 block">NITRO BOOST [SHIFT]</span>
+                </div>
+
+                <div class="text-center border-l border-slate-800 pl-4">
+                    <span class="text-[10px] text-slate-400 uppercase font-mono block">GEAR</span>
+                    <span id="hudGear" class="text-5xl font-black text-amber-400 font-mono italic">1</span>
+                    <span id="hudRpm" class="text-[10px] text-slate-400 font-mono block mt-1">900 RPM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GARAGE & CUSTOMIZATION MODAL -->
+    <div id="garageModal" class="hidden absolute inset-0 z-30 bg-[#070913]/95 backdrop-blur flex flex-col p-8 pt-16 overflow-y-auto">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+                <h2 class="text-2xl font-black italic text-cyan-400">GARAGE & TUNING STUDIO</h2>
+                <p class="text-xs text-slate-400">Configure aerodynamics, performance stages, and paint finishes.</p>
+            </div>
+            <button onclick="window.app.closeGarage()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold">Back to Menu</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 mt-6">
+            <!-- CAR SELECTION -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase font-mono">Select Vehicle</h3>
+                <div id="carListContainer" class="space-y-2"></div>
+            </div>
+
+            <!-- TUNING & UPGRADES -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase font-mono">Performance Stages (Max 10)</h3>
+                <div id="upgradeListContainer" class="space-y-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800"></div>
+            </div>
+
+            <!-- VISUAL CUSTOMIZATION -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase font-mono">Visual Styling</h3>
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4 text-xs">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Body Paint</label>
+                        <div class="flex gap-2">
+                            <button onclick="window.app.setPaint(0x00d2ff)" class="w-8 h-8 rounded-full bg-[#00d2ff] border-2 border-white"></button>
+                            <button onclick="window.app.setPaint(0xff0044)" class="w-8 h-8 rounded-full bg-[#ff0044] border-2 border-transparent"></button>
+                            <button onclick="window.app.setPaint(0xffbb00)" class="w-8 h-8 rounded-full bg-[#ffbb00] border-2 border-transparent"></button>
+                            <button onclick="window.app.setPaint(0x9900ff)" class="w-8 h-8 rounded-full bg-[#9900ff] border-2 border-transparent"></button>
+                            <button onclick="window.app.setPaint(0x111111)" class="w-8 h-8 rounded-full bg-[#111111] border-2 border-transparent"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DRIVER DNA PROFILE MODAL -->
+    <div id="dnaModal" class="hidden absolute inset-0 z-30 bg-[#070913]/95 backdrop-blur flex flex-col p-8 pt-16 overflow-y-auto">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+                <h2 class="text-2xl font-black italic text-amber-400">DRIVER DNA PROFILE</h2>
+                <p class="text-xs text-slate-400">Neural adaptive profile calculated from 7 real-time telemetry dimensions.</p>
+            </div>
+            <button onclick="window.app.closeDriverDNA()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold">Back to Menu</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 mt-6 max-w-4xl">
+            <div class="bg-slate-900/80 p-6 rounded-2xl border border-amber-500/30 space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400 uppercase font-mono">Archetype</span>
+                    <span id="dnaArchetype" class="text-lg font-black text-amber-300 font-mono">Apex Predator</span>
+                </div>
+                <div id="dnaBarsContainer" class="space-y-3 font-mono text-xs"></div>
+            </div>
+            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 flex flex-col justify-center text-xs text-slate-300 space-y-3">
+                <h4 class="font-bold text-white text-sm">Adaptive Rival Matching</h4>
+                <p>Velocity Nexus synthesizes opponent AI driver weights to directly target your weakest telemetry vectors (e.g. wet braking or cornering apex consistency).</p>
+                <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300">
+                    Next Recommended Event: <b>Rainforest Apex Championship (Wet Handling +30% XP)</b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/rendering/vehicle_mesh_generator.js"></script>
+    <script src="/audio/audio_engine.js"></script>
+    <script src="/camera/dynamic_camera.js"></script>
+    <script src="/core/app.js"></script>
+</body>
+</html>
